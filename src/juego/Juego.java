@@ -16,6 +16,7 @@ public class Juego extends InterfaceJuego
 	private Personaje personaje;
 	private Menu menu;
 	private Roca[] rocas;
+	private Enemigo[] enemigos;
 	
 	Juego()
 	{
@@ -36,6 +37,8 @@ public class Juego extends InterfaceJuego
 			new Roca(limiteDerecho - 150, entorno.alto() - 100, 50, 50, Color.gray),
 			new Roca((limiteDerecho)/2, entorno.alto() / 2, 60, 60, Color.gray)
 		};
+		
+		this.enemigos = new Enemigo[10]; // creo un arreglo para almacenar 10 enemigos
 		
 		// Inicia el juego!
 		this.entorno.iniciar();
@@ -79,6 +82,9 @@ public class Juego extends InterfaceJuego
 		this.menu.dibujar(entorno);
 		for(Roca roca : rocas) {
 			roca.dibujar(entorno);
+		}
+		for(Enemigo enemigo : enemigos) {
+			enemigo.dibujar(entorno);
 		}
 	}
 	
