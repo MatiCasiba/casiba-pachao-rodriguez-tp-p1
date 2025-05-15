@@ -42,6 +42,20 @@ public class Juego extends InterfaceJuego
 		// con esto voy a dibujar todos los objetos en pantalla
 		this.dibujarObjetos();
 		
+		// asingo teclas para el movimiento del personaje
+		if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+			personaje.moverDerecha();
+		}
+		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+			personaje.moverIzquierda();
+		}
+		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+			personaje.moverArriba();
+		}
+		if(entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+			personaje.moverAbajo();
+		}
+		
 	}
 	
 	public void dibujarObjetos() {

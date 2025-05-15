@@ -24,4 +24,19 @@ public class Personaje {
 		entorno.dibujarRectangulo(x, y, ancho, alto, 0, color);
 	}
 	
+	// Creo funciones para mover el rectangulo (osea el personaje)
+	public void moverDerecha() {
+		this.x += 6;
+	}
+	public void moverIzquierda() {
+		this.x -= 6;
+	}
+	public void moverArriba() {
+		this.y -= 6;
+	}
+	public void moverAbajo() {
+		this.y += 6;
+	}
+	
+	
 }
