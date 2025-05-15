@@ -44,8 +44,11 @@ public class Juego extends InterfaceJuego
 		// con esto voy a dibujar todos los objetos en pantalla
 		this.dibujarObjetos();
 		
+		// calculo el limite derecho hasta donde el personaje puede moverse (antes de tocar menú)
+		int limiteDerecho = entorno.ancho() - menu.getAncho();
+		
 		// asingo teclas para el movimiento del personaje
-		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(entorno)) {
+		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(limiteDerecho)) {
 			personaje.moverDerecha();
 		}
 		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !personaje.colisionaPorIzquierda(entorno)) {

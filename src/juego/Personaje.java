@@ -53,8 +53,8 @@ public class Personaje {
 	}
 	
 	// armo las colisiones
-	public boolean colisionaPorDerecha(Entorno entorno) {
-		return this.x + this.ancho/2 >= entorno.ancho();
+	public boolean colisionaPorDerecha(int limiteDerecho) {
+		return this.x + this.ancho/2 >= limiteDerecho;
 	}
 	public boolean colisionaPorIzquierda(Entorno entorno) {
 		return this.x - this.ancho/2 <= 0;
