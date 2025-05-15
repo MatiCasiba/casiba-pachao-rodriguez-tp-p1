@@ -38,5 +38,31 @@ public class Personaje {
 		this.y += 6;
 	}
 	
+	// pido los get 
+	public int getX() {
+		return x;
+	}
+	public int getY() {
+		return y;
+	}
+	public int getAncho() {
+		return ancho;
+	}
+	public int getAlto() {
+		return alto;
+	}
 	
+	// armo las colisiones
+	public boolean colisionaPorDerecha(Entorno entorno) {
+		return this.x + this.ancho/2 >= entorno.ancho();
+	}
+	public boolean colisionaPorIzquierda(Entorno entorno) {
+		return this.x - this.ancho/2 <= 0;
+	}
+	public boolean colisionaPorArriba(Entorno entorno) {
+		return this.y - this.alto/2 <= 0;
+	}
+	public boolean colisionaPorAbajo(Entorno entorno) {
+		return this.y + this.alto/2 >= entorno.alto();
+	}
 }

@@ -43,16 +43,16 @@ public class Juego extends InterfaceJuego
 		this.dibujarObjetos();
 		
 		// asingo teclas para el movimiento del personaje
-		if(entorno.estaPresionada(entorno.TECLA_DERECHA)) {
+		if(entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(entorno)) {
 			personaje.moverDerecha();
 		}
-		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA)) {
+		if(entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !personaje.colisionaPorIzquierda(entorno)) {
 			personaje.moverIzquierda();
 		}
-		if(entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+		if(entorno.estaPresionada(entorno.TECLA_ARRIBA) && !personaje.colisionaPorArriba(entorno)) {
 			personaje.moverArriba();
 		}
-		if(entorno.estaPresionada(entorno.TECLA_ABAJO)) {
+		if(entorno.estaPresionada(entorno.TECLA_ABAJO) && !personaje.colisionaPorAbajo(entorno)) {
 			personaje.moverAbajo();
 		}
 		
