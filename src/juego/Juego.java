@@ -38,7 +38,33 @@ public class Juego extends InterfaceJuego
 			new Roca((limiteDerecho)/2, entorno.alto() / 2, 60, 60, Color.gray)
 		};
 		
+		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
 		this.enemigos = new Enemigo[10]; // creo un arreglo para almacenar 10 enemigos
+		int menuXInicio = entorno.ancho() - menu.getAncho(); // calculo dónde empieza el menú para evitar que los enemigos aparezcan encima
+		for(int i = 0; i < enemigos.length; i++) {
+			int borde = (int)(Math.random()*4); //elijo al azar un borde: 0=izq, 1=der, 2=arriba, 3=abajo
+			int ex = 0;
+			int ey = 0;
+			switch(borde) {
+				case 0:
+					ex=0;
+					ey=(int)(Math.random()* entorno.alto());
+					break;
+				case 1:
+					ex= menuXInicio - 10; // se coloca antes de que empiece el menú
+					ey= (int)(Math.random()* entorno.alto());
+					break;
+				case 2:
+					ex= (int)(Math.random()* (menuXInicio -20)); //x aleatorio
+					ey= 0;
+					break;
+				case 3:
+					ex= (int)(Math.random()* (menuXInicio - 20));
+					ey= entorno.alto();
+					break;
+			}
+			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.yellow); // creo el enemigo
+		}
 		
 		// Inicia el juego!
 		this.entorno.iniciar();
@@ -73,6 +99,11 @@ public class Juego extends InterfaceJuego
 		}
 		if(entorno.estaPresionada(entorno.TECLA_ABAJO) && !personaje.colisionaPorAbajo(entorno) && !colisionaConRocaAlMover(0, 5)) {
 			personaje.moverAbajo();
+		}
+		
+		// muevo el enemigo hacia el personaje
+		for(Enemigo enemigo : enemigos) {
+			enemigo.moverHacia(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
 		}
 		
 	}
