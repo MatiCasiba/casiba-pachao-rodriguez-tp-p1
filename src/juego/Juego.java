@@ -14,6 +14,7 @@ public class Juego extends InterfaceJuego
 	// Variables y métodos propios de cada grupo
 	// ...
 	private Personaje personaje;
+	private Menu menu;
 	
 	Juego()
 	{
@@ -23,6 +24,7 @@ public class Juego extends InterfaceJuego
 		// Inicializar lo que haga falta para el juego
 		// ...
 		this.personaje = new Personaje(entorno.ancho()/2, 250, 20, 40, Color.white); //250(posicion) 20(ancho) 40(alto del rectangulo)
+		this.menu = new Menu(entorno.ancho(), entorno.alto()); // voy a iniciar menu después del personaje
 
 		// Inicia el juego!
 		this.entorno.iniciar();
@@ -60,6 +62,7 @@ public class Juego extends InterfaceJuego
 	
 	public void dibujarObjetos() {
 		this.personaje.dibujar(entorno);
+		this.menu.dibujar(entorno);
 	}
 	
 
