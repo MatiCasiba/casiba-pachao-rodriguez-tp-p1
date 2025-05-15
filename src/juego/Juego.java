@@ -15,6 +15,7 @@ public class Juego extends InterfaceJuego
 	// ...
 	private Personaje personaje;
 	private Menu menu;
+	private Roca[] rocas;
 	
 	Juego()
 	{
@@ -25,7 +26,17 @@ public class Juego extends InterfaceJuego
 		// ...
 		this.personaje = new Personaje(entorno.ancho()/2, 250, 20, 40, Color.white); //250(posicion) 20(ancho) 40(alto del rectangulo)
 		this.menu = new Menu(entorno.ancho(), entorno.alto()); // voy a iniciar menu después del personaje
-
+		
+		// creo las rocas y lo adapto al espacio de pantalla del juego, para que no toque con el menú
+		int limiteDerecho = entorno.ancho() - menu.getAncho();
+		this.rocas = new Roca[] {
+			new Roca(150, 100, 50, 50, Color.gray),
+			new Roca(limiteDerecho - 150, 100, 50, 50, Color.gray),
+			new Roca(150, entorno.alto() - 100, 50, 50, Color.gray),
+			new Roca(limiteDerecho - 150, entorno.alto() - 100, 50, 50, Color.gray),
+			new Roca((limiteDerecho)/2, entorno.alto()/2, 60, 60, Color.gray)
+		};
+		
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -66,6 +77,9 @@ public class Juego extends InterfaceJuego
 	public void dibujarObjetos() {
 		this.personaje.dibujar(entorno);
 		this.menu.dibujar(entorno);
+		for(Roca roca : rocas) {
+			roca.dibujar(entorno);
+		}
 	}
 	
 
