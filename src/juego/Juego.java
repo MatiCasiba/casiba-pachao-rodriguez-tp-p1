@@ -18,6 +18,7 @@ public class Juego extends InterfaceJuego
 	private Roca[] rocas;
 	private Enemigo[] enemigos;
 	
+	
 	Juego()
 	{
 		// Inicializa el objeto entorno
