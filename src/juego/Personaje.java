@@ -91,5 +91,4 @@ public class Personaje {
 		//OPCION 2
 		return px1 < rx2 && px2 > rx1 && py1 < ry2 && py2 > ry1;
 	}
-	
 }
