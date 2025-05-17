@@ -57,4 +57,5 @@ public class Enemigo {
 	public int getAlto() {
 		return alto;
 	}
+	
 }
