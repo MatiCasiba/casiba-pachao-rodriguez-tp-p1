@@ -67,7 +67,7 @@ public class Personaje {
 	}
 	
 	// creo la función para la colisión del personaje con las rocas
-	public boolean colisionaCon(Roca roca) {
+	public boolean colisionaConRoca(Roca roca) {
 		// las coordenadas del personaje
 		int px1 = this.x - this.ancho / 2;
 		int px2 = this.x + this.ancho / 2;

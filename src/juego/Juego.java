@@ -108,7 +108,7 @@ public class Juego extends InterfaceJuego
 				if (this.personaje.colisionaConEnemigo(enemigos[i])) {
 					enemigos[i] = null;
 				} else {
-					enemigos[i].moverHacia(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
+					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
 				}
 			}
 		}
@@ -138,7 +138,7 @@ public class Juego extends InterfaceJuego
 		Personaje simulado = new Personaje(futuroX, futuroY, personaje.getAncho(), personaje.getAlto(), Color.white);
 		// voy a recorrer todas las rocas y veo si colisionaría con alguna
 		for(Roca roca : rocas) {
-			if(simulado.colisionaCon(roca)) {
+			if(simulado.colisionaConRoca(roca)) {
 				return true; // si colisiona con alguna roca, no permito el movimiento
 			}
 		}

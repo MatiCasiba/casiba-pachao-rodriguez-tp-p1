@@ -24,7 +24,7 @@ public class Enemigo {
 	}
 	
 	// función para hacer que los enemigos persigan al personaje
-	public void moverHacia(int objetivoX, int objetivoY) {
+	public void moverHaciaPersonaje(int objetivoX, int objetivoY) {
 		// calculo cuánto más lejos está el enemigo del personaje X y del Y
 		int dx = objetivoX - this.x;
 		int dy = objetivoY - this.y;
