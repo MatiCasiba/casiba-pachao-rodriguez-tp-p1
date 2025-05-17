@@ -31,10 +31,10 @@ public class Juego extends InterfaceJuego
 		// creo las rocas y lo adapto al espacio de pantalla del juego, para que no toque con el menú
 		int limiteDerecho = entorno.ancho() - menu.getAncho();
 		this.rocas = new Roca[] {
-			new Roca(150, 100, 50, 50, Color.gray),
-			new Roca(limiteDerecho - 150, 100, 50, 50, Color.gray),
-			new Roca(150, entorno.alto() - 100, 50, 50, Color.gray),
-			new Roca(limiteDerecho - 150, entorno.alto() - 100, 50, 50, Color.gray),
+			new Roca(150, 150, 60, 60, Color.gray),
+			new Roca(limiteDerecho - 150, 150, 60, 60, Color.gray),
+			new Roca(150, entorno.alto() - 150, 60, 60, Color.gray),
+			new Roca(limiteDerecho - 150, entorno.alto() - 150, 60, 60, Color.gray),
 			new Roca((limiteDerecho)/2, entorno.alto() / 2, 60, 60, Color.gray)
 		};
 		
@@ -63,7 +63,7 @@ public class Juego extends InterfaceJuego
 					ey= entorno.alto();
 					break;
 			}
-			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.yellow); // creo el enemigo
+			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.MAGENTA); // creo el enemigo
 		}
 		
 		// Inicia el juego!
@@ -102,8 +102,14 @@ public class Juego extends InterfaceJuego
 		}
 		
 		// muevo el enemigo hacia el personaje
-		for(Enemigo enemigo : enemigos) {
-			enemigo.moverHacia(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
+		for(int i = 0; i < enemigos.length; i++) {
+			if (enemigos[i] != null) {
+				if (this.personaje.colisionaConEnemigo(enemigos[i])) {
+					enemigos[i] = null;
+				} else {
+					enemigos[i].moverHacia(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
+				}
+			}
 		}
 		
 	}
@@ -115,7 +121,9 @@ public class Juego extends InterfaceJuego
 			roca.dibujar(entorno);
 		}
 		for(Enemigo enemigo : enemigos) {
-			enemigo.dibujar(entorno);
+			if (enemigo != null) {
+				enemigo.dibujar(entorno);
+			}
 		}
 	}
 	

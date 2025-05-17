@@ -91,4 +91,20 @@ public class Personaje {
 		//OPCION 2
 		return px1 < rx2 && px2 > rx1 && py1 < ry2 && py2 > ry1;
 	}
+	
+	public boolean colisionaConEnemigo(Enemigo e) {
+		// las coordenadas del personaje
+		int px1 = this.x - this.ancho / 2;
+		int px2 = this.x + this.ancho / 2;
+		int py1 = this.y - this.alto / 2;
+		int py2 = this.y + this.alto / 2;
+		
+		// las coordenadas de los enemigos
+		int rx1 = e.getX() - e.getAncho() / 2;
+		int rx2 = e.getX() + e.getAncho() / 2;
+		int ry1 = e.getY() - e.getAlto() / 2;
+		int ry2 = e.getY() + e.getAlto() / 2;
+		
+		return px1 < rx2 && px2 > rx1 && py1 < ry2 && py2 > ry1;
+	}
 }
