@@ -17,7 +17,9 @@ public class Juego extends InterfaceJuego
 	private Menu menu;
 	private Roca[] rocas;
 	private Enemigo[] enemigos;
-	
+	private int totalEnemigosCreados = 10;
+    private int enemigosEliminados = 0;
+    private int maxEnemigos = 50;
 	
 	Juego()
 	{
@@ -40,9 +42,9 @@ public class Juego extends InterfaceJuego
 		};
 		
 		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
-		this.enemigos = new Enemigo[10]; // creo un arreglo para almacenar 10 enemigos
+		this.enemigos = new Enemigo[50]; // creo un arreglo para almacenar 50 enemigos
 		int menuXInicio = entorno.ancho() - menu.getAncho(); // calculo dónde empieza el menú para evitar que los enemigos aparezcan encima
-		for(int i = 0; i < enemigos.length; i++) {
+		for(int i = 0; i < 10; i++) { //generamos 10 enemigos 
 			int borde = (int)(Math.random()*4); //elijo al azar un borde: 0=izq, 1=der, 2=arriba, 3=abajo
 			int ex = 0;
 			int ey = 0;
@@ -102,16 +104,31 @@ public class Juego extends InterfaceJuego
 			personaje.moverAbajo();
 		}
 		
-		// muevo el enemigo hacia el personaje
-		for(int i = 0; i < enemigos.length; i++) {
-			if (enemigos[i] != null) {
-				if (this.personaje.colisionaConEnemigo(enemigos[i])) {
-					enemigos[i] = null;
-				} else {
-					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY()); // los enemigos persiguen al persoaje
-				}
-			}
-		}
+		int enemigosActivos = 0;
+        //muevo enemigos existentes y los cuento
+        for(int i = 0; i< enemigos.length; i++) {
+            if(enemigos[i] != null) {
+                // si colisiona con el personaje, elimino al enemigo
+                if(personaje.colisionaConEnemigo(enemigos[i])) {
+                    enemigos[i] = null;
+                    enemigosEliminados++;
+                }
+                else {
+                    enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
+                    enemigosActivos++;
+                }
+            }
+        }
+        // si hay menos de 10 enemigos activos y todavia no alcanza el maximo
+        for(int i = 0; i < enemigos.length && enemigosActivos < 10 && totalEnemigosCreados < maxEnemigos; i++) {
+            if(enemigos[i] == null) {
+                enemigos[i] = crearEnemigoAleatorio();
+                totalEnemigosCreados++;
+                enemigosActivos++;
+            }
+        }
+		
+		
 		
 	}
 	
@@ -119,7 +136,9 @@ public class Juego extends InterfaceJuego
 		this.personaje.dibujar(entorno);
 		this.menu.dibujar(entorno);
 		for(Roca roca : rocas) {
-			roca.dibujar(entorno);
+			if (roca != null) {
+				roca.dibujar(entorno);
+			}
 		}
 		for(Enemigo enemigo : enemigos) {
 			if (enemigo != null) {
@@ -144,6 +163,42 @@ public class Juego extends InterfaceJuego
 		}
 		return false;
 	}
+	
+	// N U E V O
+    // con este metodo me genero un nuevo enemigo en una posición aleatoria desde algún borde de la pantalla
+    // me aseguro de que no aparezca encima del menú lateral
+    private Enemigo crearEnemigoAleatorio() {
+        // elijo aleatoriamente uno de los 4 bordes de la pnatalla
+        int borde = (int)(Math.random()*4); 
+        // donde guardo la posición X e Y del nuevo enemigo
+        int ex = 0;
+        int ey = 0;
+        // calculo donde va a empezar el menú en x, para no generar enemigos encima de él
+        int menuXInicio = entorno.ancho() - menu.getAncho();
+        
+        // segun el borde, elijo la posicion adecuada para que aparezca el enemigo
+        switch(borde) {
+            case 0:
+                ex = 0;
+                ey = (int)(Math.random()*entorno.alto());
+                break;
+            case 1:
+                ex = menuXInicio - 10; // x justo antes del menú
+                ey = (int)(Math.random()*entorno.alto());
+                break;
+            case 2:
+                ex = (int)(Math.random() * (menuXInicio - 20));
+                ey = 0;
+                break;
+            case 3:
+                ex = (int)(Math.random()*(menuXInicio - 20));
+                ey = entorno.alto();
+                break;
+        }
+        // devuelvo el nuevo objeto enemgio creado en esa posición
+        return new Enemigo(ex, ey, 20, 20, Color.magenta);
+        
+    }
 	
 
 	@SuppressWarnings("unused")
