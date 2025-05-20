@@ -18,17 +18,18 @@ public class Juego extends InterfaceJuego
 	private Roca[] rocas;
 	private Enemigo[] enemigos;
 	private int totalEnemigosCreados = 10;
-    private int enemigosEliminados = 0;
     private int maxEnemigos = 50;
+    private int enemigosEliminados = 0;
+    private Boton boton1;
+    private Boton boton2;
 	
-	Juego()
-	{
+	Juego() {
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Gondolf - Land of Bats", 1200, 720);
 		
 		// Inicializar lo que haga falta para el juego
 		// ...
-		this.personaje = new Personaje(entorno.ancho()/2, 250, 20, 40, Color.white); //250(posicion) 20(ancho) 40(alto del rectangulo)
+		this.personaje = new Personaje(entorno.ancho() / 2, 250, 20, 40, Color.white); //250(posicion) 20(ancho) 40(alto del rectangulo)
 		this.menu = new Menu(entorno.ancho(), entorno.alto()); // voy a iniciar menu después del personaje
 		
 		// creo las rocas y lo adapto al espacio de pantalla del juego, para que no toque con el menú
@@ -42,9 +43,9 @@ public class Juego extends InterfaceJuego
 		};
 		
 		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
-		this.enemigos = new Enemigo[50]; // creo un arreglo para almacenar 50 enemigos
+		this.enemigos = new Enemigo[maxEnemigos]; // creo un arreglo para almacenar 50 enemigos
 		int menuXInicio = entorno.ancho() - menu.getAncho(); // calculo dónde empieza el menú para evitar que los enemigos aparezcan encima
-		for(int i = 0; i < 10; i++) { //generamos 10 enemigos 
+		for(int i = 0; i < totalEnemigosCreados; i++) { //generamos 10 enemigos 
 			int borde = (int)(Math.random()*4); //elijo al azar un borde: 0=izq, 1=der, 2=arriba, 3=abajo
 			int ex = 0;
 			int ey = 0;
@@ -69,6 +70,9 @@ public class Juego extends InterfaceJuego
 			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.MAGENTA); // creo el enemigo
 		}
 		
+		this.boton1 = new Boton(entorno.ancho() - 100, entorno.alto() / 2 - 80, 130, 65);
+		this.boton2 = new Boton(entorno.ancho() - 100, entorno.alto() / 2, 130, 65);
+		
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -79,8 +83,7 @@ public class Juego extends InterfaceJuego
 	 * actualizar el estado interno del juego para simular el paso del tiempo 
 	 * (ver el enunciado del TP para mayor detalle).
 	 */
-	public void tick()
-	{
+	public void tick() {
 		// Procesamiento de un instante de tiempo
 		// ...
 		
@@ -109,7 +112,7 @@ public class Juego extends InterfaceJuego
         for(int i = 0; i< enemigos.length; i++) {
             if(enemigos[i] != null) {
                 // si colisiona con el personaje, elimino al enemigo
-                if(personaje.colisionaConEnemigo(enemigos[i])) {
+                if(personaje.colisionaConEnemigo(enemigos[i]) /*|| hechizoTocaAlEnemigo*/) {
                     enemigos[i] = null;
                     enemigosEliminados++;
                 }
@@ -127,12 +130,36 @@ public class Juego extends InterfaceJuego
                 enemigosActivos++;
             }
         }
-		
-		
-		
+        
+        if (sePresionoBoton1()){
+        	
+		}
+        if (sePresionoBoton2()) {
+        	
+        }
+        
 	}
 	
+	public boolean sePresionoBoton1(){
+		if(boton1.mouseEstaSobreElBoton(entorno.mouseX() ,entorno.mouseY()) && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+			boton2.setSePresionoBoton(false);
+			boton1.setSePresionoBoton(true);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean sePresionoBoton2(){
+		if(boton2.mouseEstaSobreElBoton(entorno.mouseX() ,entorno.mouseY()) && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+			boton1.setSePresionoBoton(false);
+			boton2.setSePresionoBoton(true);
+			return true;
+		}
+		return false;
+	}
+
 	public void dibujarObjetos() {
+		//Podria hacer una condicional que diga IF (PERSONAJE != NULL && asi con todos los objetos...)
 		this.personaje.dibujar(entorno);
 		this.menu.dibujar(entorno);
 		for(Roca roca : rocas) {
@@ -144,6 +171,12 @@ public class Juego extends InterfaceJuego
 			if (enemigo != null) {
 				enemigo.dibujar(entorno);
 			}
+		}
+		if (this.boton1 != null) {
+			this.boton1.dibujarse(entorno);
+		}
+		if (this.boton2 != null) {
+			this.boton2.dibujarse(entorno);
 		}
 	}
 	
