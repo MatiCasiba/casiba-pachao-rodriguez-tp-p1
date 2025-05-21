@@ -80,15 +80,7 @@ public class Personaje {
 		int ry1 = roca.getY() - roca.getAlto() / 2;
 		int ry2 = roca.getY() + roca.getAlto() / 2;
 		
-		//OPCION1
-		// condicion de colision
-		//boolean seSuperponeHorizontalmente = px1 < rx2 && px2 > rx1;
-		//boolean seSuperponeVerticalmente = py1 < ry2 && py2 > ry1;
-	
-		// voy a devolver true solo si hay superposición en ambos ejes
-		//return seSuperponeHorizontalmente && seSuperponeVerticalmente;
 		
-		//OPCION 2
 		return px1 < rx2 && px2 > rx1 && py1 < ry2 && py2 > ry1;
 	}
 	
