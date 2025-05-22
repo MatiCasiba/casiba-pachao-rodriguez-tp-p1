@@ -38,7 +38,7 @@ public class Personaje {
 		this.y += 6;
 	}
 	
-	// pido los get 
+	// pido los get para acceder a los atributos privados
 	public int getX() {
 		return x;
 	}

@@ -25,12 +25,15 @@ public class Enemigo {
 	
 	// función para hacer que los enemigos persigan al personaje
 	public void moverHaciaPersonaje(int objetivoX, int objetivoY) {
+		
 		// calculo cuánto más lejos está el enemigo del personaje X y del Y
 		int dx = objetivoX - this.x;
 		int dy = objetivoY - this.y;
+		
 		// calculo la distancia entre el enemigo y el personaje
 		double distancia = Math.sqrt(dx*dx + dy*dy);
 		if(distancia != 0) {
+			
 			//voy a evitar la división por cero (en caso de que el enemigo ya está encima del personaje)
 			//lo covierto en un vector, osea lo normalizo, este ya no tiene un largo (la magnitud), solo sabe hacia donde ir (una direccion)
 			double dirX = dx/distancia;
