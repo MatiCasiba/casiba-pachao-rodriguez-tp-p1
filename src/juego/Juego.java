@@ -11,17 +11,18 @@ public class Juego extends InterfaceJuego {
 
 	// Variables y métodos propios de cada grupo
 	// ...
-	private int energia = 100; 
+	private int energia = 100;
+	private int vida = 100;
 	private Personaje personaje;
 	private Menu menu;
 	private Roca[] rocas;
 	private Enemigo[] enemigos;
 	private int totalEnemigosCreados = 10;
-	private int maxEnemigos = 50;
+	private int maxEnemigos = 60;
 	private int enemigosEliminados = 0;
-	private Hechizo[] hechizos; 
-	private Boton[] botones; 
-	private Hechizo hechizoSeleccionado = null; 
+	private Hechizo[] hechizos;
+	private Boton[] botones;
+	private Hechizo hechizoSeleccionado = null;
 
 	Juego() {
 		// Inicializa el objeto entorno
@@ -72,10 +73,12 @@ public class Juego extends InterfaceJuego {
 		}
 
 		// Creo los hechizos
-		hechizos = new Hechizo[] { new Hechizo("Bomba de Agua", 0, 30, Color.blue), new Hechizo("Tormenta de Fuego", 20, 70, Color.red) };
+		hechizos = new Hechizo[] { new Hechizo("Bomba de Agua", 0, 30, Color.blue),
+				new Hechizo("Tormenta de Fuego", 20, 70, Color.red) };
 		// Creo los botones
 		int menuDerecha = entorno.ancho() - menu.getAncho();
-		botones = new Boton[] { new Boton(menuDerecha + 100, 300, 120, 40, "Bomba de agua"), new Boton(menuDerecha + 100, 350, 120, 40, "Tormenta de Fuego") };
+		botones = new Boton[] { new Boton(menuDerecha + 100, 300, 120, 40, "Bomba de agua"),
+				new Boton(menuDerecha + 100, 350, 120, 40, "Tormenta de Fuego") };
 
 		// Inicia el juego!
 		this.entorno.iniciar();
@@ -88,109 +91,116 @@ public class Juego extends InterfaceJuego {
 	 * del TP para mayor detalle).
 	 */
 	public void tick() {
-		// Procesamiento de un instante de tiempo
-		// ...
+		if (vida <= 0) {
+			entorno.cambiarFont("Arial", 50, Color.red);
+			entorno.escribirTexto("PERDISTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
+		} else if (enemigosEliminados >= maxEnemigos - 10) { //si matamos 50 enemigos, en este caso.
+			entorno.cambiarFont("Arial", 50, Color.green);
+			entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 120, entorno.alto() / 2);
+		} else {
+			// Procesamiento de un instante de tiempo
+			// ...
 
-		// con esto voy a dibujar todos los objetos en pantalla
-		this.dibujarObjetos();
+			// con esto voy a dibujar todos los objetos en pantalla
+			this.dibujarObjetos();
 
-		// calculo el limite derecho hasta donde el personaje puede moverse (antes de
-		// tocar menú)
-		int limiteDerecho = entorno.ancho() - menu.getAncho();
+			// calculo el limite derecho hasta donde el personaje puede moverse (antes de
+			// tocar menú)
+			int limiteDerecho = entorno.ancho() - menu.getAncho();
 
-		// asingo teclas para el movimiento del personaje
-		if (entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(limiteDerecho)
-				&& !colisionaConRocaAlMover(5, 0)) {
-			personaje.moverDerecha();
-		}
-		if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !personaje.colisionaPorIzquierda(entorno)
-				&& !colisionaConRocaAlMover(-5, 0)) {
-			personaje.moverIzquierda();
-		}
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && !personaje.colisionaPorArriba(entorno)
-				&& !colisionaConRocaAlMover(0, -5)) {
-			personaje.moverArriba();
-		}
-		if (entorno.estaPresionada(entorno.TECLA_ABAJO) && !personaje.colisionaPorAbajo(entorno)
-				&& !colisionaConRocaAlMover(0, 5)) {
-			personaje.moverAbajo();
-		}
+			// asingo teclas para el movimiento del personaje
+			if (entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(limiteDerecho)
+					&& !colisionaConRocaAlMover(5, 0)) {
+				personaje.moverDerecha();
+			}
+			if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !personaje.colisionaPorIzquierda(entorno)
+					&& !colisionaConRocaAlMover(-5, 0)) {
+				personaje.moverIzquierda();
+			}
+			if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && !personaje.colisionaPorArriba(entorno)
+					&& !colisionaConRocaAlMover(0, -5)) {
+				personaje.moverArriba();
+			}
+			if (entorno.estaPresionada(entorno.TECLA_ABAJO) && !personaje.colisionaPorAbajo(entorno)
+					&& !colisionaConRocaAlMover(0, 5)) {
+				personaje.moverAbajo();
+			}
 
-		int enemigosActivos = 0;
-		// muevo enemigos existentes y los cuento
-		for (int i = 0; i < enemigos.length; i++) {
-			if (enemigos[i] != null) {
-				// si colisiona con el personaje, elimino al enemigo
-				if (personaje.colisionaConEnemigo(enemigos[i]) /* || hechizoTocaAlEnemigo */) {
-					enemigos[i] = null;
-					enemigosEliminados++;
-				} else {
-					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
+			int enemigosActivos = 0;
+			// muevo enemigos existentes y los cuento
+			for (int i = 0; i < enemigos.length; i++) {
+				if (enemigos[i] != null) {
+					// si colisiona con el personaje, elimino al enemigo
+					if (personaje.colisionaConEnemigo(enemigos[i])) {
+						enemigos[i] = null;
+						vida -= 10;
+					} else {
+						enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
+						enemigosActivos++;
+					}
+				}
+			}
+			// si hay menos de 10 enemigos activos y todavia no alcanza el maximo
+			for (int i = 0; i < enemigos.length && enemigosActivos < 10 && totalEnemigosCreados < maxEnemigos; i++) {
+				if (enemigos[i] == null) {
+					enemigos[i] = crearEnemigoAleatorio();
+					totalEnemigosCreados++;
 					enemigosActivos++;
 				}
 			}
-		}
-		// si hay menos de 10 enemigos activos y todavia no alcanza el maximo
-		for (int i = 0; i < enemigos.length && enemigosActivos < 10 && totalEnemigosCreados < maxEnemigos; i++) {
-			if (enemigos[i] == null) {
-				enemigos[i] = crearEnemigoAleatorio();
-				totalEnemigosCreados++;
-				enemigosActivos++;
-			}
-		}
-		// dentro de tick
-		for (Boton boton : botones) {
-			boton.dibujar(entorno);
-		}
-		// detecto click izquierdo del mouse y que esté dentro del entorno
-		if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-			// quiero obtener las posicio
-			int mx = entorno.mouseX();
-			int my = entorno.mouseY();
 
-			boolean clicEnBoton = false;
+			// detecto click izquierdo del mouse y que esté dentro del entorno
+			if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+				// quiero obtener las posicio
+				int mx = entorno.mouseX();
+				int my = entorno.mouseY();
 
-			for (int i = 0; i < botones.length; i++) {
-				if (botones[i].fueClickeado(mx, my)) {
-					hechizoSeleccionado = hechizos[i];
-					for (Boton b : botones)
-						b.setSeleccionado(false);
+				boolean clicEnBoton = false;
+
+				for (int i = 0; i < botones.length; i++) {
+					if (botones[i].fueClickeado(mx, my)) {
+						hechizoSeleccionado = hechizos[i];
+						for (Boton b : botones)
+							b.setSeleccionado(false);
 						botones[i].setSeleccionado(true);
 						clicEnBoton = true;
 						break;
-				}
-			}
-			int limiteJuego = entorno.ancho() - menu.getAncho();
-			if (!clicEnBoton && hechizoSeleccionado != null && mx < limiteJuego) {
-				// verifico si tengo suficiente energia, si no es el gratuito
-				if (energia >= hechizoSeleccionado.getCosto()) {
-					energia -= hechizoSeleccionado.getCosto();
-					
-					// dibuhjo hechizo
-					hechizoSeleccionado.dibujar(entorno, mx, my);
-
-					// elimino enemigos en área
-					for (int i = 0; i < enemigos.length; i++) {
-						if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
-							enemigos[i] = null;
-						}
 					}
+				}
+				int limiteJuego = entorno.ancho() - menu.getAncho();
+				if (!clicEnBoton && hechizoSeleccionado != null && mx < limiteJuego) {
+					// verifico si tengo suficiente energia, si no es el gratuito
+					if (energia >= hechizoSeleccionado.getCosto()) {
+						energia -= hechizoSeleccionado.getCosto();
 
-					// reseteo hechizo
-					hechizoSeleccionado = null;
-					for (Boton b : botones)
-						b.setSeleccionado(false);
+						// dibuhjo hechizo
+						hechizoSeleccionado.dibujar(entorno, mx, my);
+
+						// elimino enemigos en área
+						for (int i = 0; i < enemigos.length; i++) {
+							if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
+								enemigos[i] = null;
+								enemigosEliminados++;
+							}
+						}
+
+						// reseteo hechizo
+						hechizoSeleccionado = null;
+						for (Boton b : botones)
+							b.setSeleccionado(false);
+					}
 				}
 			}
 		}
-
 	}
 
 	public void dibujarObjetos() {
-		// Podria hacer una condicional que diga IF (PERSONAJE != NULL && asi con todos
-		// los objetos...)
-		this.personaje.dibujar(entorno);
-		this.menu.dibujar(entorno);
+		if (personaje != null) {
+			this.personaje.dibujar(entorno);
+		}
+		if (menu != null) {
+			this.menu.dibujar(entorno);
+		}
 		for (Roca roca : rocas) {
 			if (roca != null) {
 				roca.dibujar(entorno);
@@ -201,8 +211,16 @@ public class Juego extends InterfaceJuego {
 				enemigo.dibujar(entorno);
 			}
 		}
+		for (Boton boton : botones) {
+			if (boton != null) {
+				boton.dibujar(entorno);
+			}
+		}
 		this.entorno.cambiarFont("Arial", 20, Color.white);
-		this.entorno.escribirTexto("Maná: "+this.energia, entorno.ancho()-100, 50);
+		this.entorno.escribirTexto("Maná: " + this.energia, entorno.ancho() - 150, 500);
+		this.entorno.escribirTexto("Vida: " + this.vida, entorno.ancho() - 148, 530);
+		this.entorno.escribirTexto("Bajas: " + this.enemigosEliminados, entorno.ancho() - 148, 560);
+
 	}
 
 	// me creo una nueva función para las colisiones del personaje con las rocas
@@ -260,7 +278,6 @@ public class Juego extends InterfaceJuego {
 		return new Enemigo(ex, ey, 20, 20, Color.magenta);
 
 	}
-	
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
