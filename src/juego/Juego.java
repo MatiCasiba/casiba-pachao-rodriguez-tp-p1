@@ -49,12 +49,11 @@ public class Juego extends InterfaceJuego {
 		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
 		this.enemigos = new Enemigo[maxEnemigos]; // creo un arreglo para almacenar 50 enemigos
 		iniciarOleada(oleada);
-		
 
 		// Creo los hechizos
 		hechizos = new Hechizo[] { new Hechizo("Bomba de Agua", 0, 30, Color.blue),
-				new Hechizo("Tormenta de Fuego", 20, 70, Color.red) ,
-				new Hechizo("Tormenta de Fuego", 10, 50, Color.green) ,
+				new Hechizo("Tormenta de Fuego", 20, 70, Color.red),
+				new Hechizo("Tormenta de Fuego", 10, 50, Color.green),
 				new Hechizo("Tormenta de Fuego", 20, 70, Color.orange) };
 		// Creo los botones
 		int menuDerecha = entorno.ancho() - menu.getAncho();
@@ -75,7 +74,7 @@ public class Juego extends InterfaceJuego {
 		if (vida <= 0) {
 			entorno.cambiarFont("Arial", 50, Color.red);
 			entorno.escribirTexto("PERDISTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
-		} else if (bajas >= maxEnemigos - 10) { //cant de bajas para ganar (3 oleadas) 
+		} else if (bajas >= maxEnemigos - 10) { // cant de bajas para ganar (3 oleadas)
 			entorno.cambiarFont("Arial", 50, Color.green);
 			entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 120, entorno.alto() / 2);
 		} else {
@@ -122,7 +121,8 @@ public class Juego extends InterfaceJuego {
 				}
 			}
 			// si hay menos de 10 enemigos activos y todavia no alcanza el maximo
-			for (int i = 0; i < enemigos.length && enemigosActivos < enemigosPorOleada && totalEnemigosCreados < maxEnemigos; i++) {
+			for (int i = 0; i < enemigos.length && enemigosActivos < enemigosPorOleada
+					&& totalEnemigosCreados < maxEnemigos; i++) {
 				if (enemigos[i] == null) {
 					enemigos[i] = crearEnemigoAleatorio();
 					totalEnemigosCreados++;
@@ -173,15 +173,17 @@ public class Juego extends InterfaceJuego {
 					}
 				}
 			}
+			
 			if (enemigosEliminados >= enemigosPorOleada) {
 				oleada++;
 				iniciarOleada(oleada);
 			}
 		}
 	}
-	
+
 	private void iniciarOleada(int numeroOleada) {
-		enemigosPorOleada = 10 + (numeroOleada - 1) * 5; // Aumenta 5 enemigos por oleada //1ra oleada = 10, 2da = 15, 3ra = 20, en total = 45 
+		enemigosPorOleada = 10 + (numeroOleada - 1) * 5; // Aumenta 5 enemigos por oleada //1ra oleada = 10, 2da = 15,
+															// 3ra = 20, en total = 45
 		totalEnemigosCreados = 0;
 		enemigosEliminados = 0;
 		for (int i = 0; i < enemigosPorOleada && i < maxEnemigos; i++) {
@@ -279,7 +281,6 @@ public class Juego extends InterfaceJuego {
 		return new Enemigo(ex, ey, 20, 20, Color.magenta);
 
 	}
-	
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
