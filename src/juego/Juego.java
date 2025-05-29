@@ -136,7 +136,7 @@ public class Juego extends InterfaceJuego {
 			for (int i = 0; i < enemigos.length; i++) {
 				if (enemigos[i] != null) {
 					// si colisiona con el personaje, elimino al enemigo
-					if (personaje.colisionaConEnemigo(enemigos[i]) /* || hechizoTocaAlEnemigo */) {
+					if (personaje.colisionaConEnemigo(enemigos[i])) {
 						enemigos[i] = null;
 						enemigosEliminados++;
 						vida -= 10;
