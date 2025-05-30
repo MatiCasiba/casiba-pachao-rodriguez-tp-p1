@@ -1,27 +1,32 @@
 package juego;
 
 import java.awt.Color;
+import java.awt.Image;
 
 import entorno.Entorno;
+import entorno.Herramientas;
 
 public class Personaje {
 	private int x;
 	private int y;
 	private int ancho;
 	private int alto;
-	private Color color;
+	//private Color color;
+	private Image imagen;
 	
 	public Personaje(int x, int y, int ancho, int alto, Color color) {
 		this.x =x;
 		this.y =y;
 		this.ancho = ancho;
 		this.alto = alto;
-		this.color = color;
+		//this.color = color;
+		this.imagen = Herramientas.cargarImagen("image/mago.png");
 	}
 	
 	// Dibujo el personaje
 	public void dibujar(Entorno entorno) {
-		entorno.dibujarRectangulo(x, y, ancho, alto, 0, color);
+		//entorno.dibujarRectangulo(x, y, ancho, alto, 0, color);
+		entorno.dibujarImagen(imagen, x, y, 0, 0.1);
 	}
 	
 	// Creo funciones para mover el rectangulo (osea el personaje)

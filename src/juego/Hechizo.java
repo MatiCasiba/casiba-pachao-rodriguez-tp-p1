@@ -5,10 +5,10 @@ import java.awt.Color;
 import entorno.Entorno;
 
 public class Hechizo {
-    String nombre;
-    int costo;
-    int radio;
-    Color color;
+    private String nombre;
+    private int costo;
+    private int radio;
+    private Color color;
     
     public Hechizo(String nombre, int costo, int radio, Color color) {
         this.nombre = nombre;

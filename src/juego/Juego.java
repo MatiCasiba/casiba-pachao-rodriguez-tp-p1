@@ -1,8 +1,10 @@
 package juego;
 
 import java.awt.Color;
+import java.awt.Image;
 
 import entorno.Entorno;
+import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego {
@@ -11,15 +13,20 @@ public class Juego extends InterfaceJuego {
 
 	// Variables y métodos propios de cada grupo
 	// ...
+	private Image fondo;
+	
 	private int energia = 100;
 	private int vida = 100;
 	private Personaje personaje;
+	
 	private Menu menu;
 	private Roca[] rocas;
+	
 	private Enemigo[] enemigos;
 	private int totalEnemigosCreados = 10;
 	private int maxEnemigos = 50;
 	private int enemigosEliminados = 0;
+	
 	private Hechizo[] hechizos;
 	private Boton[] botones;
 	private Hechizo hechizoSeleccionado = null;
@@ -27,6 +34,7 @@ public class Juego extends InterfaceJuego {
 	Juego() {
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Gondolf - Land of Bats", 1200, 720);
+		this.fondo = Herramientas.cargarImagen("image/fondoTierra.jpg");
 
 		// Inicializar lo que haga falta para el juego
 		// ...
@@ -179,8 +187,7 @@ public class Juego extends InterfaceJuego {
 					if (energia >= hechizoSeleccionado.getCosto()) {
 						energia -= hechizoSeleccionado.getCosto();
 
-						// dibuhjo hechizo
-						hechizoSeleccionado.dibujar(entorno, mx, my);
+						hechizoSeleccionado.dibujar(entorno, mx, my); // dibujo hechizo
 
 						// elimino enemigos en área
 						for (int i = 0; i < enemigos.length; i++) {
@@ -203,6 +210,7 @@ public class Juego extends InterfaceJuego {
 	public void dibujarObjetos() {
 		// Podria hacer una condicional que diga IF (PERSONAJE != NULL && asi con todos
 		// los objetos...)
+		entorno.dibujarImagen(fondo, entorno.ancho()/2, entorno.alto()/2, 0);
 		this.personaje.dibujar(entorno);
 		this.menu.dibujar(entorno);
 		for (Roca roca : rocas) {
@@ -252,9 +260,9 @@ public class Juego extends InterfaceJuego {
 	// con este metodo me genero un nuevo enemigo en una posición aleatoria desde
 	// algún borde de la pantalla
 	// me aseguro de que no aparezca encima del menú lateral
+	
 	private Enemigo crearEnemigoAleatorio() {
-		// elijo aleatoriamente uno de los 4 bordes de la pnatalla
-		int borde = (int) (Math.random() * 4);
+		int borde = (int) (Math.random() * 4); // elijo aleatoriamente uno de los 4 bordes de la pnatalla
 		// donde guardo la posición X e Y del nuevo enemigo
 		int ex = 0;
 		int ey = 0;
