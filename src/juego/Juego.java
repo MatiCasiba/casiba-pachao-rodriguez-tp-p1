@@ -32,8 +32,9 @@ public class Juego extends InterfaceJuego {
 
 	// Variables para control de oleadas
 	private int oleadaActual = 1;
-	private int[] objetivosOleada = { 5, 10, 15 };
+	private int[] objetivosOleada = { 15, 20, 40 };
 	private int enemigosEliminadosEnOleada = 0;
+	private int enemigosCreadosEnOleada = 0;
 	private boolean esperandoInicioOleada;
 	
 	// Velocidades por oleada
@@ -62,12 +63,14 @@ public class Juego extends InterfaceJuego {
 				new Roca(150, entorno.alto() - 150, 60, 60, Color.gray),
 				new Roca(limiteDerecho - 150, entorno.alto() - 150, 60, 60, Color.gray),
 				new Roca((limiteDerecho) / 2, entorno.alto() / 2, 60, 60, Color.gray) };
+		
 		// Sumamos en maxEnemigos los objetivos de cada oleada
-        for (int objetivo : objetivosOleada) {
-            maxEnemigos += objetivo;
-        }
+//        for (int objetivo : objetivosOleada) {
+//            maxEnemigos += objetivo;
+//        }
+        
 		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
-		this.enemigos = new Enemigo[maxEnemigos]; // creo un arreglo para almacenar 50 enemigos
+		this.enemigos = new Enemigo[30]; // creo un arreglo para almacenar enemigos
 		int menuXInicio = entorno.ancho() - menu.getAncho(); // calculo dónde empieza el menú para evitar que los
 																// enemigos aparezcan encima
 		for (int i = 0; i < totalEnemigosCreados; i++) { // generamos 10 enemigos
@@ -140,6 +143,7 @@ public class Juego extends InterfaceJuego {
 			if (oleadaActual < 3) {
 				oleadaActual++;
 				enemigosEliminadosEnOleada = 0;
+				//enemigosCreadosEnOleada = 0; // NUEVO (Reinicio) 
 				esperandoInicioOleada = true;
 			} else {
 				entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
@@ -299,11 +303,18 @@ public class Juego extends InterfaceJuego {
             enemigos[i] = null;
         }
         
+        // reinicio contador de enemigos creados para esta oleada
+        totalEnemigosCreados = 0;
+        
+        //establezco el límite máximo de eneigos para esta oleada
+        maxEnemigos = objetivosOleada[oleadaActual - 1];
+        
         // Crear nuevos enemigos para la oleada
         for (int i = 0; i < 10 && i < enemigos.length; i++) {
             enemigos[i] = crearEnemigoAleatorio();
+            totalEnemigosCreados++;
         }
-        totalEnemigosCreados = 10;
+        //totalEnemigosCreados = 10;
     }
 
 	public void dibujarObjetos() {
