@@ -14,22 +14,34 @@ public class Juego extends InterfaceJuego {
 	// Variables y métodos propios de cada grupo
 	// ...
 	private Image fondo;
-	
+
 	private int energia = 100;
 	private int vida = 100;
 	private Personaje personaje;
-	
+
 	private Menu menu;
 	private Roca[] rocas;
-	
+
 	private Enemigo[] enemigos;
 	private int totalEnemigosCreados = 10;
-	private int maxEnemigos = 50;
-	private int enemigosEliminados = 0;
-	
+	private int maxEnemigos = 0;
+
 	private Hechizo[] hechizos;
 	private Boton[] botones;
 	private Hechizo hechizoSeleccionado = null;
+
+	// Variables para control de oleadas
+	private int oleadaActual = 1;
+	private int[] objetivosOleada = { 5, 10, 15 };
+	private int enemigosEliminadosEnOleada = 0;
+	private boolean esperandoInicioOleada;
+	
+	// Velocidades por oleada
+    private double[] velocidadesOleada = {1.5, 1.8, 2.1};
+    // Cantidad máxima de enemigos en pantalla por oleada
+    private int[] maxEnemigosPantalla = {10, 15, 20};
+    // Daño por colisión por oleada
+    private int[] danioPorOleada = {10, 15, 20};
 
 	Juego() {
 		// Inicializa el objeto entorno
@@ -50,7 +62,10 @@ public class Juego extends InterfaceJuego {
 				new Roca(150, entorno.alto() - 150, 60, 60, Color.gray),
 				new Roca(limiteDerecho - 150, entorno.alto() - 150, 60, 60, Color.gray),
 				new Roca((limiteDerecho) / 2, entorno.alto() / 2, 60, 60, Color.gray) };
-
+		// Sumamos en maxEnemigos los objetivos de cada oleada
+        for (int objetivo : objetivosOleada) {
+            maxEnemigos += objetivo;
+        }
 		// creando el enemigo y evitando que pasen por encima del menú cuando aparezcan
 		this.enemigos = new Enemigo[maxEnemigos]; // creo un arreglo para almacenar 50 enemigos
 		int menuXInicio = entorno.ancho() - menu.getAncho(); // calculo dónde empieza el menú para evitar que los
@@ -77,7 +92,7 @@ public class Juego extends InterfaceJuego {
 				ey = entorno.alto();
 				break;
 			}
-			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.MAGENTA); // creo el enemigo
+			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.MAGENTA, velocidadesOleada[0]); // creo el enemigo
 		}
 
 		// viejo
@@ -93,6 +108,11 @@ public class Juego extends InterfaceJuego {
 		botones = new Boton[] { new Boton(menuDerecha + 100, 300, 120, 40, "Bomba de agua"),
 				new Boton(menuDerecha + 100, 350, 120, 40, "Tormenta de Fuego") };
 
+		// Estado inicial
+		this.energia = 100;
+		this.vida = 100;
+		this.esperandoInicioOleada = true;
+		
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -104,12 +124,25 @@ public class Juego extends InterfaceJuego {
 	 * del TP para mayor detalle).
 	 */
 	public void tick() {
+		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
+		if (esperandoInicioOleada) {
+			mostrarPantallaInicioOleada();
+			return;
+		}
 		if (vida <= 0) {
+			entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
 			entorno.cambiarFont("Arial", 50, Color.red);
 			entorno.escribirTexto("PERDISTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
-		} else if (enemigosEliminados >= maxEnemigos) {
-			entorno.cambiarFont("Arial", 50, Color.green);
-			entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
+		} else if (enemigosEliminadosEnOleada >= objetivosOleada[oleadaActual - 1]) {
+			if (oleadaActual < 3) {
+				oleadaActual++;
+				enemigosEliminadosEnOleada = 0;
+				esperandoInicioOleada = true;
+			} else {
+				entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
+				entorno.cambiarFont("Arial", 50, Color.green);
+				entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
+			}
 		} else {
 			// Procesamiento de un instante de tiempo
 			// ...
@@ -146,8 +179,8 @@ public class Juego extends InterfaceJuego {
 					// si colisiona con el personaje, elimino al enemigo
 					if (personaje.colisionaConEnemigo(enemigos[i])) {
 						enemigos[i] = null;
-						enemigosEliminados++;
-						vida -= 10;
+						enemigosEliminadosEnOleada++;
+						vida -= danioPorOleada[oleadaActual - 1];
 					} else {
 						enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
 						enemigosActivos++;
@@ -155,7 +188,9 @@ public class Juego extends InterfaceJuego {
 				}
 			}
 			// si hay menos de 10 enemigos activos y todavia no alcanza el maximo
-			for (int i = 0; i < enemigos.length && enemigosActivos < 10 && totalEnemigosCreados < maxEnemigos; i++) {
+			// Actualizar la generación de enemigos según oleada
+	        int maxActual = maxEnemigosPantalla[oleadaActual - 1];
+			for (int i = 0; i < enemigos.length && enemigosActivos < maxActual && totalEnemigosCreados < maxEnemigos; i++) {
 				if (enemigos[i] == null) {
 					enemigos[i] = crearEnemigoAleatorio();
 					totalEnemigosCreados++;
@@ -182,7 +217,7 @@ public class Juego extends InterfaceJuego {
 					}
 				}
 
-				if (!clicEnBoton && hechizoSeleccionado != null) {
+				if (!clicEnBoton && hechizoSeleccionado != null && mx < limiteDerecho) {
 					// verifico si tengo suficiente energia, si no es el gratuito
 					if (energia >= hechizoSeleccionado.getCosto()) {
 						energia -= hechizoSeleccionado.getCosto();
@@ -193,7 +228,7 @@ public class Juego extends InterfaceJuego {
 						for (int i = 0; i < enemigos.length; i++) {
 							if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
 								enemigos[i] = null;
-								enemigosEliminados++; // con esto debería de contar correctamente
+								enemigosEliminadosEnOleada++; // con esto debería de contar correctamente
 							}
 						}
 
@@ -206,11 +241,66 @@ public class Juego extends InterfaceJuego {
 			}
 		}
 	}
+	
+	private void mostrarPantallaInicioOleada() {
+		// Fondo
+        entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
+        
+        // Texto de oleada
+        entorno.cambiarFont("Arial", 50, Color.white);
+        entorno.escribirTexto("Oleada " + this.oleadaActual, entorno.ancho()/2 - 100, entorno.alto()/2 - 50);
+        
+     // Botón para comenzar
+        int botonX = entorno.ancho()/2;
+        int botonY = entorno.alto()/2 + 50;
+        int botonAncho = 200;
+        int botonAlto = 60;
+        
+        // Dibujar el botón
+        entorno.dibujarRectangulo(botonX, botonY, botonAncho, botonAlto, 0, Color.gray);
+        
+        // Dibujar el texto centrado sobre el botón
+        entorno.cambiarFont("Arial", 30, Color.white);
+        
+        // Calcular posición para centrar el texto
+        int textoX = botonX - 70;  // Mitad del ancho del texto aprox
+        int textoY = botonY + 10;  // Ajuste vertical
+        
+        entorno.escribirTexto("Comenzar", textoX, textoY);
+               
+        
+        // Detectar clic en el botón
+        if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+            int mouseX = entorno.mouseX();
+            int mouseY = entorno.mouseY();
+            
+            // Verificar si se hizo clic en el botón
+            if (mouseX > entorno.ancho()/2 - 100 && mouseX < entorno.ancho()/2 + 100 &&
+                mouseY > entorno.alto()/2 + 20 && mouseY < entorno.alto()/2 + 80) {
+                
+                prepararOleada();
+                esperandoInicioOleada = false;
+            }
+        }
+    }
+	
+	private void prepararOleada() {
+        // Reiniciar enemigos
+        for (int i = 0; i < enemigos.length; i++) {
+            enemigos[i] = null;
+        }
+        
+        // Crear nuevos enemigos para la oleada
+        for (int i = 0; i < 10 && i < enemigos.length; i++) {
+            enemigos[i] = crearEnemigoAleatorio();
+        }
+        totalEnemigosCreados = 10;
+    }
 
 	public void dibujarObjetos() {
 		// Podria hacer una condicional que diga IF (PERSONAJE != NULL && asi con todos
 		// los objetos...)
-		entorno.dibujarImagen(fondo, entorno.ancho()/2, entorno.alto()/2, 0);
+		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
 		this.personaje.dibujar(entorno);
 		this.menu.dibujar(entorno);
 		for (Roca roca : rocas) {
@@ -233,8 +323,14 @@ public class Juego extends InterfaceJuego {
 		this.entorno.cambiarFont("Arial", 20, Color.white);
 		this.entorno.escribirTexto("Maná: " + this.energia, entorno.ancho() - 150, 500);
 		this.entorno.escribirTexto("Vida: " + this.vida, entorno.ancho() - 148, 530);
-		this.entorno.escribirTexto("Bajas: " + this.enemigosEliminados, entorno.ancho() - 150, 560);
-
+		// Mostramos información de oleada
+        if (this.oleadaActual == 3) {
+        	this.entorno.escribirTexto("¡Última oleada!", entorno.ancho() - 150, 560);
+        } else {
+        	this.entorno.escribirTexto("Oleada: " + this.oleadaActual + "/3", entorno.ancho() - 150, 560);
+        }
+        this.entorno.escribirTexto("Objetivo: " + this.enemigosEliminadosEnOleada + "/" + this.objetivosOleada[oleadaActual - 1], entorno.ancho() - 150, 590);
+        
 	}
 
 	// me creo una nueva función para las colisiones del personaje con las rocas
@@ -260,7 +356,7 @@ public class Juego extends InterfaceJuego {
 	// con este metodo me genero un nuevo enemigo en una posición aleatoria desde
 	// algún borde de la pantalla
 	// me aseguro de que no aparezca encima del menú lateral
-	
+
 	private Enemigo crearEnemigoAleatorio() {
 		int borde = (int) (Math.random() * 4); // elijo aleatoriamente uno de los 4 bordes de la pnatalla
 		// donde guardo la posición X e Y del nuevo enemigo
@@ -290,7 +386,7 @@ public class Juego extends InterfaceJuego {
 			break;
 		}
 		// devuelvo el nuevo objeto enemgio creado en esa posición
-		return new Enemigo(ex, ey, 20, 20, Color.magenta);
+		return new Enemigo(ex, ey, 20, 20, Color.magenta, velocidadesOleada[oleadaActual - 1]); 
 
 	}
 

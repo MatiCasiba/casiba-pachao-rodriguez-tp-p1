@@ -14,6 +14,7 @@ public class Enemigo {
 	private int y;
 	private int ancho;
 	private int alto;
+	private double velocidad;
 	private Color color;
 	
     private BufferedImage spriteSheet; // Imagen completa
@@ -22,13 +23,14 @@ public class Enemigo {
     private int ticks = 0;             // Para controlar la velocidad de la animación
     private int velocidadAnimacion = 10; // Menor número = animación más rápida
 	
-    public Enemigo(int x, int y, int ancho, int alto, Color color) {
+    public Enemigo(int x, int y, int ancho, int alto, Color color, double velocidad) {
         this.x = x;
         this.y = y;
         
         // cambio estos valores para agrandar la imagen en pantalla
         this.ancho = 50;
         this.alto = 70;
+        this.velocidad = velocidad;
 
         try {
             this.spriteSheet = ImageIO.read(getClass().getResource("/image/spriteBat.png"));
@@ -69,16 +71,12 @@ public class Enemigo {
 		// calculo la distancia entre el enemigo y el personaje
 		double distancia = Math.sqrt(dx*dx + dy*dy);
 		if(distancia != 0) {
-			
 			//voy a evitar la división por cero (en caso de que el enemigo ya está encima del personaje)
 			//lo covierto en un vector, osea lo normalizo, este ya no tiene un largo (la magnitud), solo sabe hacia donde ir (una direccion)
 			double dirX = dx/distancia;
 			double dirY = dy/distancia;
-			
-			double velocidad = 3.0; // defino la velocidad
-			//actulizo la posicon del enemigo en X y en Y con la dirección multiplicadad por la velocidad
 			this.x += (int)(dirX * velocidad);
-			this.y += (int)(dirY * velocidad);
+	        this.y += (int)(dirY * velocidad);
 			
 		}
 	}
