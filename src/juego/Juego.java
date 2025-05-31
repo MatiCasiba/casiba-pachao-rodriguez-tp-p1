@@ -32,9 +32,8 @@ public class Juego extends InterfaceJuego {
 
 	// Variables para control de oleadas
 	private int oleadaActual = 1;
-	private int[] objetivosOleada = { 15, 20, 40 };
+	private int[] objetivosOleada = { 20, 40, 60 };
 	private int enemigosEliminadosEnOleada = 0;
-	private int enemigosCreadosEnOleada = 0;
 	private boolean esperandoInicioOleada;
 	
 	// Velocidades por oleada
@@ -43,6 +42,10 @@ public class Juego extends InterfaceJuego {
     private int[] maxEnemigosPantalla = {10, 15, 20};
     // Daño por colisión por oleada
     private int[] danioPorOleada = {10, 15, 20};
+    
+ // Variables para sistema de recompensas
+    private boolean mostrandoRecompensas;
+    private Boton[] botonesRecompensa;
 
 	Juego() {
 		// Inicializa el objeto entorno
@@ -95,7 +98,7 @@ public class Juego extends InterfaceJuego {
 				ey = entorno.alto();
 				break;
 			}
-			enemigos[i] = new Enemigo(ex, ey, 20, 20, Color.MAGENTA, velocidadesOleada[0]); // creo el enemigo
+			enemigos[i] = new Enemigo(ex, ey, 20, 20, /*Color.MAGENTA,*/ velocidadesOleada[0]); // creo el enemigo
 		}
 
 		// viejo
@@ -119,6 +122,11 @@ public class Juego extends InterfaceJuego {
 		this.vida = 100;
 		this.esperandoInicioOleada = true;
 		
+		this.botonesRecompensa = new Boton[] {
+	            new Boton(entorno.ancho()/2 - 150, entorno.alto()/2 + 50, 200, 40, "Vida +20"),
+	            new Boton(entorno.ancho()/2 + 150, entorno.alto()/2 + 50, 200, 40, "Maná +20"),
+	            new Boton(entorno.ancho()/2, entorno.alto()/2 + 120, 200, 40, "Velocidad x1.5") };
+		
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -133,9 +141,14 @@ public class Juego extends InterfaceJuego {
 		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
 		
 		if (esperandoInicioOleada) {
-			mostrarPantallaInicioOleada();
-			return;
-		}
+            mostrarPantallaInicioOleada();
+            return;
+        }
+        
+        if (mostrandoRecompensas) {
+            mostrarPantallaRecompensas();
+            return;
+        }
 		
 		if (vida <= 0) {
 			mostrarPantallaPerdida();
@@ -165,6 +178,7 @@ public class Juego extends InterfaceJuego {
 			oleadaActual++;
 			enemigosEliminadosEnOleada = 0;
 			esperandoInicioOleada = true;
+			mostrandoRecompensas = true;
 		} else {
 			entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
 			entorno.cambiarFont("Arial", 50, Color.green);
@@ -172,27 +186,78 @@ public class Juego extends InterfaceJuego {
 		}
 	}
 	
+	private void mostrarPantallaRecompensas() {
+        entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, 
+                                 entorno.ancho(), entorno.alto(), 0, new Color(0, 0, 0, 180));
+        
+        // Texto
+        entorno.cambiarFont("Arial", 40, Color.white);
+        entorno.escribirTexto("¡Estar por comenzar la oleada " + oleadaActual + "!", 
+                             entorno.ancho()/2 - 283, entorno.alto()/2 - 80);
+        entorno.escribirTexto("Elige una recompensa:", 
+                             entorno.ancho()/2 - 195, entorno.alto()/2 - 20);
+        
+        // Dibujar botones de recompensa
+        for (Boton boton : botonesRecompensa) {
+            boton.dibujar(entorno);
+        }
+        
+        // Manejar selección de recompensa
+        if (entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
+            int mx = entorno.mouseX();
+            int my = entorno.mouseY();
+            
+            for (int i = 0; i < botonesRecompensa.length; i++) {
+                if (botonesRecompensa[i].fueClickeado(mx, my)) {
+                    aplicarRecompensa(i);
+                    prepararSiguienteOleada();
+                    break;
+                }
+            }
+        }
+    }
+
+    private void aplicarRecompensa(int opcion) {
+        switch (opcion) {
+            case 0: // Vida +20
+                vida += 20;
+                break;
+            case 1: // Maná +20
+                energia += 20;
+                break;
+            case 2: // Velocidad x1.5
+                personaje.aumentarVelocidad(1.5);
+                break;
+        }
+    }
+
+    private void prepararSiguienteOleada() {
+    	enemigosEliminadosEnOleada = 0;
+        mostrandoRecompensas = false;
+        esperandoInicioOleada = true;
+    }
+	
 	private void procesarMovimientoPersonaje() {
 		int limiteDerecho = entorno.ancho() - menu.getAncho();
-
-		if (entorno.estaPresionada(entorno.TECLA_DERECHA)
+		int velocidad = personaje.getVelocidad(); // Obtener velocidad actual
+		if (entorno.estaPresionada(entorno.TECLA_DERECHA) || entorno.estaPresionada('d')
 				&& !personaje.colisionaPorDerecha(limiteDerecho)
-				&& !colisionaConRocaAlMover(5, 0)) {
+				&& !colisionaConRocaAlMover(velocidad, 0)) {
 			personaje.moverDerecha();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)
+		if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('a')
 				&& !personaje.colisionaPorIzquierda(entorno)
-				&& !colisionaConRocaAlMover(-5, 0)) {
+				&& !colisionaConRocaAlMover(-velocidad, 0)) {
 			personaje.moverIzquierda();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA)
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('w')
 				&& !personaje.colisionaPorArriba(entorno)
-				&& !colisionaConRocaAlMover(0, -5)) {
+				&& !colisionaConRocaAlMover(0, -velocidad)) {
 			personaje.moverArriba();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_ABAJO)
+		if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('s')
 				&& !personaje.colisionaPorAbajo(entorno)
-				&& !colisionaConRocaAlMover(0, 5)) {
+				&& !colisionaConRocaAlMover(0, velocidad)) {
 			personaje.moverAbajo();
 		}
 	}
@@ -418,7 +483,7 @@ public class Juego extends InterfaceJuego {
 			break;
 		}
 		// devuelvo el nuevo objeto enemgio creado en esa posición
-		return new Enemigo(ex, ey, 20, 20, Color.magenta, velocidadesOleada[oleadaActual - 1]); 
+		return new Enemigo(ex, ey, 20, 20, /*Color.magenta,*/ velocidadesOleada[oleadaActual - 1]); 
 
 	}
 

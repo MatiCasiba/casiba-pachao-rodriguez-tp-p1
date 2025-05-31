@@ -1,6 +1,5 @@
 package juego;
 
-import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -14,9 +13,7 @@ public class Enemigo {
 	private int y;
 	private int ancho;
 	private int alto;
-	private double velocidad;
-	private Color color;
-	private double veocidad;
+	//private Color color; ya no lo usamos
 	private boolean ralentizado;
 	private int tiempoRalentizado;
 	
@@ -26,14 +23,12 @@ public class Enemigo {
     private int ticks = 0;             // Para controlar la velocidad de la animación
     private int velocidadAnimacion = 10; // Menor número = animación más rápida
 	
-    public Enemigo(int x, int y, int ancho, int alto, Color color, double velocidad) {
+    public Enemigo(int x, int y, int ancho, int alto, /*Color color  ,*/ double velocidad) {
         this.x = x;
         this.y = y;
-        
         // cambio estos valores para agrandar la imagen en pantalla
         this.ancho = 50;
         this.alto = 70;
-        this.velocidad = velocidad;
         this.ralentizado= false;
         this.tiempoRalentizado=0;
        

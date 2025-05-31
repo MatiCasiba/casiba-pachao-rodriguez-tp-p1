@@ -11,6 +11,7 @@ public class Personaje {
 	private int y;
 	private int ancho;
 	private int alto;
+	private int velocidad = 6; // velocidad base
 	//private Color color;
 	private Image imagen;
 	
@@ -29,19 +30,26 @@ public class Personaje {
 		entorno.dibujarImagen(imagen, x, y, 0, 0.1);
 	}
 	
+	public void aumentarVelocidad(double factor) {
+        this.velocidad = (int)(velocidad * factor);
+    }
+	
 	// Creo funciones para mover el rectangulo (osea el personaje)
 	public void moverDerecha() {
-		this.x += 6;
-	}
-	public void moverIzquierda() {
-		this.x -= 6;
-	}
-	public void moverArriba() {
-		this.y -= 6;
-	}
-	public void moverAbajo() {
-		this.y += 6;
-	}
+        this.x += velocidad;
+    }
+    
+    public void moverIzquierda() {
+        this.x -= velocidad;
+    }
+    
+    public void moverArriba() {
+        this.y -= velocidad;
+    }
+    
+    public void moverAbajo() {
+        this.y += velocidad;
+    }
 	
 	// pido los get para acceder a los atributos privados
 	public int getX() {
@@ -55,6 +63,9 @@ public class Personaje {
 	}
 	public int getAlto() {
 		return alto;
+	}
+	public int getVelocidad() {
+	    return velocidad;
 	}
 	
 	// armo las colisiones
