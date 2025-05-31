@@ -25,7 +25,7 @@ public class Pocion {
     public void dibujar(Entorno entorno) {
         entorno.dibujarRectangulo(x, y, ancho, alto, 0, color);
     }
-
+    
     public boolean colisionaConPersonaje(Personaje personaje) {
         int px1 = personaje.getX() - personaje.getAncho() / 2;
         int px2 = personaje.getX() + personaje.getAncho() / 2;

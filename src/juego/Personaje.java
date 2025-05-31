@@ -3,6 +3,10 @@ package juego;
 import java.awt.Color;
 import java.awt.Image;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 import entorno.Entorno;
 import entorno.Herramientas;
 
@@ -11,7 +15,7 @@ public class Personaje {
 	private int y;
 	private int ancho;
 	private int alto;
-	private int velocidad = 6; // velocidad base
+	private int velocidad = 4; // velocidad base
 	//private Color color;
 	private Image imagen;
 	
@@ -115,4 +119,18 @@ public class Personaje {
 		
 		return px1 < rx2 && px2 > rx1 && py1 < ry2 && py2 > ry1;
 	}
+	
+	public void reproducirSonidoDamage() {
+		try {
+			AudioInputStream audioInput = AudioSystem.getAudioInputStream(
+				getClass().getResource("/sound/uh.wav")
+			);
+			Clip clip = AudioSystem.getClip();
+			clip.open(audioInput);
+			clip.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

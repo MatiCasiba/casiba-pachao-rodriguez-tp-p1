@@ -133,6 +133,8 @@ public class Juego extends InterfaceJuego {
 		
 		this.pociones = new Pocion[maxPociones];
 		
+		ReproducirMusica.reproducirMusicaLoop("/sound/goldCobra.wav"); // Importo la clase
+
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -325,6 +327,7 @@ public class Juego extends InterfaceJuego {
 	                enemigos[i] = null;
 	                enemigosEliminadosEnOleada++;
 	                vida -= danioPorOleada[oleadaActual - 1];
+	                personaje.reproducirSonidoDamage();
 	            } else {
 					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
 					enemigosActivos++;
