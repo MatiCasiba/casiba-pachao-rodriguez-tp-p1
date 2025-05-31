@@ -16,6 +16,9 @@ public class Enemigo {
 	private int alto;
 	private double velocidad;
 	private Color color;
+	private double veocidad;
+	private boolean ralentizado;
+	private int tiempoRalentizado;
 	
     private BufferedImage spriteSheet; // Imagen completa
     private int frameActual = 0;       // Índice de frame (0 a 2)
@@ -31,6 +34,9 @@ public class Enemigo {
         this.ancho = 50;
         this.alto = 70;
         this.velocidad = velocidad;
+        this.ralentizado= false;
+        this.tiempoRalentizado=0;
+       
 
         try {
             this.spriteSheet = ImageIO.read(getClass().getResource("/image/spriteBat.png"));
@@ -63,7 +69,8 @@ public class Enemigo {
 	
 	// función para hacer que los enemigos persigan al personaje
 	public void moverHaciaPersonaje(int objetivoX, int objetivoY) {
-		
+		//Velocidad normal: 3.0, ralentizado:15 : 1.5
+		double velocidadActual=ralentizado ? 1.5 : 3.0;
 		// calculo cuánto más lejos está el enemigo del personaje X y del Y
 		int dx = objetivoX - this.x;
 		int dy = objetivoY - this.y;
@@ -75,9 +82,15 @@ public class Enemigo {
 			//lo covierto en un vector, osea lo normalizo, este ya no tiene un largo (la magnitud), solo sabe hacia donde ir (una direccion)
 			double dirX = dx/distancia;
 			double dirY = dy/distancia;
-			this.x += (int)(dirX * velocidad);
-	        this.y += (int)(dirY * velocidad);
+			this.x += (int)(dirX * velocidadActual);
+	        this.y += (int)(dirY * velocidadActual);
 			
+		}
+		if (ralentizado) {
+			tiempoRalentizado--;
+			if (tiempoRalentizado <= 0) {
+				ralentizado=false;
+			}
 		}
 	}
 	
@@ -93,6 +106,10 @@ public class Enemigo {
 	}
 	public int getAlto() {
 		return alto;
+	}
+	public void ralentizar(int duracion) {
+		this.ralentizado = true;
+		this.tiempoRalentizado=duracion;
 	}
 	
 }

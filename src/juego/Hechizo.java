@@ -9,12 +9,14 @@ public class Hechizo {
     private int costo;
     private int radio;
     private Color color;
+    private int duracionRalentizacion;
     
-    public Hechizo(String nombre, int costo, int radio, Color color) {
+    public Hechizo(String nombre, int costo, int radio, Color color, int duracionRalentizacion) {
         this.nombre = nombre;
         this.costo = costo;
         this.radio = radio;
         this.color = color;
+        this.duracionRalentizacion=duracionRalentizacion;
     }
     
     public void dibujar(Entorno entorno, int x, int y) {
@@ -45,5 +47,13 @@ public class Hechizo {
     public String getNombre() {
         return nombre;
     }
+    
+    //Método para el hehcizo de ralentizacion
+    public void aplicarEfectoRalentizacion(Enemigo enemigo) {
+        if (this.duracionRalentizacion > 0) {
+            enemigo.ralentizar(this.duracionRalentizacion);
+        }
+    }
+
 
 }

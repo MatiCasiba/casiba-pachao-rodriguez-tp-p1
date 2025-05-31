@@ -101,12 +101,15 @@ public class Juego extends InterfaceJuego {
 
 		// nuevo
 		// Creo los hechizos
-		hechizos = new Hechizo[] { new Hechizo("Bomba de Agua", 0, 30, Color.blue),
-				new Hechizo("Tormenta de Fuego", 20, 70, Color.red) };
+		hechizos = new Hechizo[] { new Hechizo("Bomba de Agua", 0, 20, Color.blue,0),
+				new Hechizo("Tormenta de Fuego", 20, 150, Color.red,0),
+				new Hechizo("Transmutacion Final",20,175,Color.cyan,100)};
+		
 		// Creo los botones
 		int menuDerecha = entorno.ancho() - menu.getAncho();
 		botones = new Boton[] { new Boton(menuDerecha + 100, 300, 120, 40, "Bomba de agua"),
-				new Boton(menuDerecha + 100, 350, 120, 40, "Tormenta de Fuego") };
+				new Boton(menuDerecha + 100, 350, 120, 40, "Tormenta de Fuego"),
+				new Boton(menuDerecha + 100,400,120,40,"Transmutacion Final")};
 
 		// Estado inicial
 		this.energia = 100;
@@ -227,10 +230,16 @@ public class Juego extends InterfaceJuego {
 						// elimino enemigos en área
 						for (int i = 0; i < enemigos.length; i++) {
 							if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
-								enemigos[i] = null;
-								enemigosEliminadosEnOleada++; // con esto debería de contar correctamente
-							}
-						}
+								if(hechizoSeleccionado.getNombre().equals("Transmutacion Final")) {
+									//"Aplica el ralentizado en lugar de eliminar"
+									hechizoSeleccionado.aplicarEfectoRalentizacion(enemigos[i]);
+								}else {
+								  //Acción normal para otros hechizos(elimina al enemigo)
+									enemigos[i] = null;
+								    enemigosEliminadosEnOleada++; // con esto debería de contar correctamente
+						        }
+						     }
+						  }
 
 						// reseteo hechizo
 						hechizoSeleccionado = null;
