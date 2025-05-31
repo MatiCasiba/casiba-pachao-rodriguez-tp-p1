@@ -131,129 +131,141 @@ public class Juego extends InterfaceJuego {
 	 */
 	public void tick() {
 		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
+		
 		if (esperandoInicioOleada) {
 			mostrarPantallaInicioOleada();
 			return;
 		}
+		
 		if (vida <= 0) {
-			entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
-			entorno.cambiarFont("Arial", 50, Color.red);
-			entorno.escribirTexto("PERDISTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
-		} else if (enemigosEliminadosEnOleada >= objetivosOleada[oleadaActual - 1]) {
-			if (oleadaActual < 3) {
-				oleadaActual++;
-				enemigosEliminadosEnOleada = 0;
-				//enemigosCreadosEnOleada = 0; // NUEVO (Reinicio) 
-				esperandoInicioOleada = true;
-			} else {
-				entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
-				entorno.cambiarFont("Arial", 50, Color.green);
-				entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
-			}
+			mostrarPantallaPerdida();
+			return;
+		}
+		
+		if (enemigosEliminadosEnOleada >= objetivosOleada[oleadaActual - 1]) {
+			controlarFinDeOleada();
+			return;
+		}
+
+		dibujarObjetos();
+		procesarMovimientoPersonaje();
+		actualizarEnemigos();
+		manejoDeClicksYHechizos();
+	}
+	
+	//NUEVO METODOS
+	private void mostrarPantallaPerdida() {
+		entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
+		entorno.cambiarFont("Arial", 50, Color.red);
+		entorno.escribirTexto("PERDISTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
+	}
+	
+	private void controlarFinDeOleada() {
+		if (oleadaActual < 3) {
+			oleadaActual++;
+			enemigosEliminadosEnOleada = 0;
+			esperandoInicioOleada = true;
 		} else {
-			// Procesamiento de un instante de tiempo
-			// ...
+			entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
+			entorno.cambiarFont("Arial", 50, Color.green);
+			entorno.escribirTexto("GANASTE", entorno.ancho() / 2 - 140, entorno.alto() / 2);
+		}
+	}
+	
+	private void procesarMovimientoPersonaje() {
+		int limiteDerecho = entorno.ancho() - menu.getAncho();
 
-			// con esto voy a dibujar todos los objetos en pantalla
-			this.dibujarObjetos();
+		if (entorno.estaPresionada(entorno.TECLA_DERECHA)
+				&& !personaje.colisionaPorDerecha(limiteDerecho)
+				&& !colisionaConRocaAlMover(5, 0)) {
+			personaje.moverDerecha();
+		}
+		if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA)
+				&& !personaje.colisionaPorIzquierda(entorno)
+				&& !colisionaConRocaAlMover(-5, 0)) {
+			personaje.moverIzquierda();
+		}
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA)
+				&& !personaje.colisionaPorArriba(entorno)
+				&& !colisionaConRocaAlMover(0, -5)) {
+			personaje.moverArriba();
+		}
+		if (entorno.estaPresionada(entorno.TECLA_ABAJO)
+				&& !personaje.colisionaPorAbajo(entorno)
+				&& !colisionaConRocaAlMover(0, 5)) {
+			personaje.moverAbajo();
+		}
+	}
 
-			// calculo el limite derecho hasta donde el personaje puede moverse (antes de
-			// tocar menú)
-			int limiteDerecho = entorno.ancho() - menu.getAncho();
+	private void actualizarEnemigos() {
+		int enemigosActivos = 0;
 
-			// asingo teclas para el movimiento del personaje
-			if (entorno.estaPresionada(entorno.TECLA_DERECHA) && !personaje.colisionaPorDerecha(limiteDerecho)
-					&& !colisionaConRocaAlMover(5, 0)) {
-				personaje.moverDerecha();
-			}
-			if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !personaje.colisionaPorIzquierda(entorno)
-					&& !colisionaConRocaAlMover(-5, 0)) {
-				personaje.moverIzquierda();
-			}
-			if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && !personaje.colisionaPorArriba(entorno)
-					&& !colisionaConRocaAlMover(0, -5)) {
-				personaje.moverArriba();
-			}
-			if (entorno.estaPresionada(entorno.TECLA_ABAJO) && !personaje.colisionaPorAbajo(entorno)
-					&& !colisionaConRocaAlMover(0, 5)) {
-				personaje.moverAbajo();
-			}
-
-			int enemigosActivos = 0;
-			// muevo enemigos existentes y los cuento
-			for (int i = 0; i < enemigos.length; i++) {
-				if (enemigos[i] != null) {
-					// si colisiona con el personaje, elimino al enemigo
-					if (personaje.colisionaConEnemigo(enemigos[i])) {
-						enemigos[i] = null;
-						enemigosEliminadosEnOleada++;
-						vida -= danioPorOleada[oleadaActual - 1];
-					} else {
-						enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
-						enemigosActivos++;
-					}
-				}
-			}
-			// si hay menos de 10 enemigos activos y todavia no alcanza el maximo
-			// Actualizar la generación de enemigos según oleada
-	        int maxActual = maxEnemigosPantalla[oleadaActual - 1];
-			for (int i = 0; i < enemigos.length && enemigosActivos < maxActual && totalEnemigosCreados < maxEnemigos; i++) {
-				if (enemigos[i] == null) {
-					enemigos[i] = crearEnemigoAleatorio();
-					totalEnemigosCreados++;
+		for (int i = 0; i < enemigos.length; i++) {
+			if (enemigos[i] != null) {
+				if (personaje.colisionaConEnemigo(enemigos[i])) {
+					enemigos[i] = null;
+					enemigosEliminadosEnOleada++;
+					vida -= danioPorOleada[oleadaActual - 1];
+				} else {
+					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
 					enemigosActivos++;
 				}
 			}
+		}
 
-			// detecto click izquierdo del mouse y que esté dentro del entorno
-			if (entorno.mousePresente() && entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO)) {
-				// quiero obtener las posicio
-				int mx = entorno.mouseX();
-				int my = entorno.mouseY();
+		int maxActual = maxEnemigosPantalla[oleadaActual - 1];
 
-				boolean clicEnBoton = false;
-
-				for (int i = 0; i < botones.length; i++) {
-					if (botones[i].fueClickeado(mx, my)) {
-						hechizoSeleccionado = hechizos[i];
-						for (Boton b : botones)
-							b.setSeleccionado(false);
-						botones[i].setSeleccionado(true);
-						clicEnBoton = true;
-						break;
-					}
-				}
-
-				if (!clicEnBoton && hechizoSeleccionado != null && mx < limiteDerecho) {
-					// verifico si tengo suficiente energia, si no es el gratuito
-					if (energia >= hechizoSeleccionado.getCosto()) {
-						energia -= hechizoSeleccionado.getCosto();
-
-						hechizoSeleccionado.dibujar(entorno, mx, my); // dibujo hechizo
-
-						// elimino enemigos en área
-						for (int i = 0; i < enemigos.length; i++) {
-							if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
-								if(hechizoSeleccionado.getNombre().equals("Transmutacion Final")) {
-									//"Aplica el ralentizado en lugar de eliminar"
-									hechizoSeleccionado.aplicarEfectoRalentizacion(enemigos[i]);
-								}else {
-								  //Acción normal para otros hechizos(elimina al enemigo)
-									enemigos[i] = null;
-								    enemigosEliminadosEnOleada++; // con esto debería de contar correctamente
-						        }
-						     }
-						  }
-
-						// reseteo hechizo
-						hechizoSeleccionado = null;
-						for (Boton b : botones)
-							b.setSeleccionado(false);
-					}
-				}
+		for (int i = 0; i < enemigos.length && enemigosActivos < maxActual && totalEnemigosCreados < maxEnemigos; i++) {
+			if (enemigos[i] == null) {
+				enemigos[i] = crearEnemigoAleatorio();
+				totalEnemigosCreados++;
+				enemigosActivos++;
 			}
 		}
 	}
+	
+	private void manejoDeClicksYHechizos() {
+		if (!entorno.mousePresente() || !entorno.sePresionoBoton(entorno.BOTON_IZQUIERDO))
+			return;
+
+		int mx = entorno.mouseX();
+		int my = entorno.mouseY();
+		int limiteDerecho = entorno.ancho() - menu.getAncho();
+		boolean clicEnBoton = false;
+
+		for (int i = 0; i < botones.length; i++) {
+			if (botones[i].fueClickeado(mx, my)) {
+				hechizoSeleccionado = hechizos[i];
+				for (Boton b : botones) b.setSeleccionado(false);
+				botones[i].setSeleccionado(true);
+				clicEnBoton = true;
+				break;
+			}
+		}
+
+		if (!clicEnBoton && hechizoSeleccionado != null && mx < limiteDerecho) {
+			if (energia >= hechizoSeleccionado.getCosto()) {
+				energia -= hechizoSeleccionado.getCosto();
+				hechizoSeleccionado.dibujar(entorno, mx, my);
+
+				for (int i = 0; i < enemigos.length; i++) {
+					if (enemigos[i] != null && hechizoSeleccionado.enRango(mx, my, enemigos[i])) {
+						if (hechizoSeleccionado.getNombre().equals("Transmutacion Final")) {
+							hechizoSeleccionado.aplicarEfectoRalentizacion(enemigos[i]);
+						} else {
+							enemigos[i] = null;
+							enemigosEliminadosEnOleada++;
+						}
+					}
+				}
+
+				hechizoSeleccionado = null;
+				for (Boton b : botones) b.setSeleccionado(false);
+			}
+		}
+	}
+
+
 	
 	private void mostrarPantallaInicioOleada() {
 		// Fondo
