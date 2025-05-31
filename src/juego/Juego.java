@@ -46,6 +46,10 @@ public class Juego extends InterfaceJuego {
  // Variables para sistema de recompensas
     private boolean mostrandoRecompensas;
     private Boton[] botonesRecompensa;
+    
+    private Pocion[] pociones;
+    private double probabilidadPocion = 0.2; // 20% de chance
+    private int maxPociones = 10;
 
 	Juego() {
 		// Inicializa el objeto entorno
@@ -127,6 +131,8 @@ public class Juego extends InterfaceJuego {
 	            new Boton(entorno.ancho()/2 + 150, entorno.alto()/2 + 50, 200, 40, "Maná +20"),
 	            new Boton(entorno.ancho()/2, entorno.alto()/2 + 120, 200, 40, "Velocidad x1.5") };
 		
+		this.pociones = new Pocion[maxPociones];
+		
 		// Inicia el juego!
 		this.entorno.iniciar();
 	}
@@ -140,33 +146,78 @@ public class Juego extends InterfaceJuego {
 	public void tick() {
 		entorno.dibujarImagen(fondo, entorno.ancho() / 2, entorno.alto() / 2, 0);
 		
+		if (mostrandoRecompensas) {
+			mostrarPantallaRecompensas();
+			return;
+		}
+		
 		if (esperandoInicioOleada) {
             mostrarPantallaInicioOleada();
             return;
         }
         
-        if (mostrandoRecompensas) {
-            mostrarPantallaRecompensas();
-            return;
+        if (enemigosEliminadosEnOleada >= objetivosOleada[oleadaActual - 1]) {
+        	controlarFinDeOleada();
+        	return;
         }
 		
 		if (vida <= 0) {
 			mostrarPantallaPerdida();
 			return;
 		}
-		
-		if (enemigosEliminadosEnOleada >= objetivosOleada[oleadaActual - 1]) {
-			controlarFinDeOleada();
-			return;
-		}
-
+		for (int i = 0; i < pociones.length; i++) {
+	        if (pociones[i] != null) {
+	            if (pociones[i].colisionaConPersonaje(personaje)) {
+	                if (pociones[i].getTipo().equals("vida")) {
+	                    vida += pociones[i].getCantidad();
+	                    if (vida > 100) vida = 100;
+	                } else {
+	                    energia += pociones[i].getCantidad();
+	                    if (energia > 100) energia = 100;
+	                }
+	                pociones[i] = null;
+	            }
+	        }
+	    }
 		dibujarObjetos();
 		procesarMovimientoPersonaje();
 		actualizarEnemigos();
 		manejoDeClicksYHechizos();
 	}
 	
-	//NUEVO METODOS
+	private void generarPocion(int x, int y) {
+	    if (Math.random() < probabilidadPocion) {
+	        // Verificar si la posición está dentro de alguna roca
+	        boolean posicionValida = true;
+	        for (Roca roca : rocas) {
+	            if (roca != null) {
+	                int rocaX1 = roca.getX() - roca.getAncho() / 2;
+	                int rocaX2 = roca.getX() + roca.getAncho() / 2;
+	                int rocaY1 = roca.getY() - roca.getAlto() / 2;
+	                int rocaY2 = roca.getY() + roca.getAlto() / 2;
+	                
+	                // Verificar si el punto (x,y) está dentro de la roca
+	                if (x >= rocaX1 && x <= rocaX2 && y >= rocaY1 && y <= rocaY2) {
+	                    posicionValida = false;
+	                    break;
+	                }
+	            }
+	        }
+	        
+	        if (posicionValida) {
+	            String tipo = Math.random() < 0.5 ? "vida" : "mana";
+	            int cantidad = 5;
+	            
+	            for (int i = 0; i < pociones.length; i++) {
+	                if (pociones[i] == null) {
+	                    pociones[i] = new Pocion(x, y, tipo, cantidad);
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	}
+	
 	private void mostrarPantallaPerdida() {
 		entorno.dibujarRectangulo(entorno.ancho()/2, entorno.alto()/2, entorno.ancho(), entorno.alto(), 0, Color.black);
 		entorno.cambiarFont("Arial", 50, Color.red);
@@ -263,15 +314,18 @@ public class Juego extends InterfaceJuego {
 	}
 
 	private void actualizarEnemigos() {
-		int enemigosActivos = 0;
+	    int enemigosActivos = 0;
 
-		for (int i = 0; i < enemigos.length; i++) {
-			if (enemigos[i] != null) {
-				if (personaje.colisionaConEnemigo(enemigos[i])) {
-					enemigos[i] = null;
-					enemigosEliminadosEnOleada++;
-					vida -= danioPorOleada[oleadaActual - 1];
-				} else {
+	    for (int i = 0; i < enemigos.length; i++) {
+	        if (enemigos[i] != null) {
+	            if (personaje.colisionaConEnemigo(enemigos[i])) {
+	                // Añadir esta línea para generar poción
+	                generarPocion(enemigos[i].getX(), enemigos[i].getY());
+	                
+	                enemigos[i] = null;
+	                enemigosEliminadosEnOleada++;
+	                vida -= danioPorOleada[oleadaActual - 1];
+	            } else {
 					enemigos[i].moverHaciaPersonaje(personaje.getX(), personaje.getY());
 					enemigosActivos++;
 				}
@@ -318,6 +372,7 @@ public class Juego extends InterfaceJuego {
 						if (hechizoSeleccionado.getNombre().equals("Transmutacion Final")) {
 							hechizoSeleccionado.aplicarEfectoRalentizacion(enemigos[i]);
 						} else {
+							generarPocion(enemigos[i].getX(), enemigos[i].getY());
 							enemigos[i] = null;
 							enemigosEliminadosEnOleada++;
 						}
@@ -391,6 +446,10 @@ public class Juego extends InterfaceJuego {
             enemigos[i] = crearEnemigoAleatorio();
             totalEnemigosCreados++;
         }
+        //Limpiar pociones
+        for (int i = 0; i < pociones.length; i++) {
+            pociones[i] = null;
+        }
         //totalEnemigosCreados = 10;
     }
 
@@ -416,6 +475,11 @@ public class Juego extends InterfaceJuego {
 				boton.dibujar(entorno);
 			}
 		}
+		for (Pocion pocion : pociones) {
+	        if (pocion != null) {
+	            pocion.dibujar(entorno);
+	        }
+	    }
 
 		this.entorno.cambiarFont("Arial", 20, Color.white);
 		this.entorno.escribirTexto("Maná: " + this.energia, entorno.ancho() - 150, 500);
