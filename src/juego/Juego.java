@@ -48,7 +48,7 @@ public class Juego extends InterfaceJuego {
     private Boton[] botonesRecompensa;
     
     private Pocion[] pociones;
-    private double probabilidadPocion = 0.2; // 20% de chance
+    private double probabilidadPocion = 0.3; // 30% de chance
     private int maxPociones = 10;
 
 	Juego() {
@@ -293,22 +293,22 @@ public class Juego extends InterfaceJuego {
 	private void procesarMovimientoPersonaje() {
 		int limiteDerecho = entorno.ancho() - menu.getAncho();
 		int velocidad = personaje.getVelocidad(); // Obtener velocidad actual
-		if (entorno.estaPresionada(entorno.TECLA_DERECHA) || entorno.estaPresionada('d')
+		if ((entorno.estaPresionada(entorno.TECLA_DERECHA) || entorno.estaPresionada('d'))
 				&& !personaje.colisionaPorDerecha(limiteDerecho)
 				&& !colisionaConRocaAlMover(velocidad, 0)) {
 			personaje.moverDerecha();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('a')
+		if ((entorno.estaPresionada(entorno.TECLA_IZQUIERDA) || entorno.estaPresionada('a'))
 				&& !personaje.colisionaPorIzquierda(entorno)
 				&& !colisionaConRocaAlMover(-velocidad, 0)) {
 			personaje.moverIzquierda();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('w')
+		if ((entorno.estaPresionada(entorno.TECLA_ARRIBA) || entorno.estaPresionada('w'))
 				&& !personaje.colisionaPorArriba(entorno)
 				&& !colisionaConRocaAlMover(0, -velocidad)) {
 			personaje.moverArriba();
 		}
-		if (entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('s')
+		if ((entorno.estaPresionada(entorno.TECLA_ABAJO) || entorno.estaPresionada('s'))
 				&& !personaje.colisionaPorAbajo(entorno)
 				&& !colisionaConRocaAlMover(0, velocidad)) {
 			personaje.moverAbajo();
@@ -321,7 +321,6 @@ public class Juego extends InterfaceJuego {
 	    for (int i = 0; i < enemigos.length; i++) {
 	        if (enemigos[i] != null) {
 	            if (personaje.colisionaConEnemigo(enemigos[i])) {
-	                // Añadir esta línea para generar poción
 	                generarPocion(enemigos[i].getX(), enemigos[i].getY());
 	                
 	                enemigos[i] = null;
@@ -336,7 +335,6 @@ public class Juego extends InterfaceJuego {
 		}
 
 		int maxActual = maxEnemigosPantalla[oleadaActual - 1];
-
 		for (int i = 0; i < enemigos.length && enemigosActivos < maxActual && totalEnemigosCreados < maxEnemigos; i++) {
 			if (enemigos[i] == null) {
 				enemigos[i] = crearEnemigoAleatorio();
